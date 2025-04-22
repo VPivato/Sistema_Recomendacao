@@ -147,7 +147,7 @@ def get_similares(base_de_dados, usuario):
 
 
 # Retorna uma lista dos filmes que determinado usuário alvo NÃO assistiu no formato [(nota_prevista0-5, filme)]
-def get_recomendacoes(base_de_dados, usuario):
+def get_recomendacoes_usuarios(base_de_dados, usuario):
     totais = {}
     soma_similaridades = {}
 
@@ -187,3 +187,32 @@ def carrega_movielens(path="movielens/"):
         base_de_dados[usuario][filmes[id_filme]] = float(nota) # Atribui ao usuario/filme a nota, no formato {usuario: {titulo: nota}}
 
     return base_de_dados
+
+
+
+# Calcula a similaridade de todos os items com todos os items, retorna um dicionário no formato {filme: [(similaridade0-1, titulo)]}
+def calcula_itens_similares(base_de_dados):
+    resultado = {}
+    for item in base_de_dados: # Para cada filme em base dados
+        notas = get_similares(base_de_dados, item) # Atribui a notas todas as similaridades
+        resultado[item] = notas # Adiciona ao dicionario
+    return resultado
+
+
+
+# Com base em um usuário e o cálculo de itens similares, retorna as recomendações em uma lista [(nota_prevista, filme)]
+def get_recomendacoes_itens(base_usuario, similaridade_itens, usuario): # similaridade_itens é o metodo calcula_itens_similares()
+    notas_usuario = base_usuario[usuario] # Filmes assistidos pelo usuário e suas notas
+    notas = {}
+    total_similaridade = {}
+    for (item, nota) in notas_usuario.items(): # Itera os filmes assistidos pelo usuário e suas notas e separa-os em suas respectivas variáveis
+        for (similaridade, item2) in similaridade_itens[item]: # Pega a lista [(similaridade0-1, titulo)] para o filme que está sendo iterado
+            if item2 in notas_usuario: continue # Pula se usuario já assistiu
+            notas.setdefault(item2, 0)
+            notas[item2] += similaridade * nota # Calcula o somatório de forma ponderada, basado na similaridade do filme
+            total_similaridade.setdefault(item2, 0)
+            total_similaridade[item2] += similaridade # Somatório da similaridade
+    rankings = [(score / total_similaridade[item], item) for (item, score) in notas.items()] # [(nota_prevista, filme)] para cada filme que usuário não assistiu
+    rankings.sort() # Ordena crescente
+    rankings.reverse() # Ordena decrescente
+    return rankings
