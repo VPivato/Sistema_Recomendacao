@@ -216,3 +216,44 @@ def get_recomendacoes_itens(base_usuario, similaridade_itens, usuario): # simila
     rankings.sort() # Ordena crescente
     rankings.reverse() # Ordena decrescente
     return rankings
+
+
+
+# Retorna a quantidade de filmes avaliados pelo usuário em relação a uma base de dados
+def quantidade_filmes_avaliados(base_de_dados, usuario):
+    cont = 0
+    for filme in base_de_dados[usuario]: cont += 1 # Soma 1 para cada filme avaliado
+    return cont
+
+
+
+# Retorna uma lista [(nota, filme)] em ordem decrescente (do melhor avaliado até o pior) para os filmes que o usuario avaliou
+# Caso o parâmetro decrescente=False, retorna uma lista do filme pior avaliado até o melhor (crescente)
+def filmes_avaliados(base_de_dados, usuario, decrescente=True):
+    filmes = [(nota, filme) for (filme, nota) in base_de_dados[usuario].items()] # Itera os filmes avaliados e armazena no formato [(nota, filme)]
+    # "Nota" precisa ser o primero elemento da lista, caso contrario, seria ordenado por ordem alfabética
+    filmes.sort() # Crescente
+    if decrescente: filmes.reverse() # Inverte se decrescente=True
+    return filmes
+
+
+
+# Mostra uma espécie de perfil para o usuário determinado, com os filmes melhores/pior avaliados por ele, e algumas recomendações
+def perfil(base_de_dados, usuario):
+    print(f"Usuário: {usuario}")
+    print(f"Filmes Avaliados: {quantidade_filmes_avaliados(base_de_dados, usuario)}")
+
+    print("-"*30)
+    print("\033[1m\033[34m10 Filmes melhores avaliados por você:\033[0m")
+    for (nota, filme) in filmes_avaliados(base_de_dados, usuario)[0:10]:
+        print(f"{filme}: {nota}⭐")
+
+    print("-" * 30)
+    print("\033[1m\033[31m10 Filmes pior avaliados por você:\033[0m")
+    for (nota, filme) in filmes_avaliados(base_de_dados, usuario, decrescente=False)[0:10]:
+        print(f"{filme}: {nota}⭐")
+
+    print("-" * 30)
+    print("\033[1m\033[35m5 Recomendações para você:\033[0m")
+    for (nota_prevista, filme) in get_recomendacoes_usuarios(base_de_dados, usuario)[0:5]:
+        print(f"{filme}: {nota_prevista}⭐")

@@ -7,7 +7,6 @@ from recomendacao import *
    antecipadamente (em momentos de baixo tráfego) e salva em algum lugar. É recalculada periodicamente, evitando operações repetidas.
    Adequada para conjunto de dados esparso, onde os usuários avaliaram uma pequena porcentagem dos produtos disponíveis"""
 
-lista_itens = calcula_itens_similares(avaliacoes_filme)
+movielens = carrega_movielens()
 
-print(get_recomendacoes_usuarios(avaliacoes_usuario, "Leonardo"))
-print(get_recomendacoes_itens(avaliacoes_usuario, lista_itens, "Leonardo"))
+perfil(movielens, "212")
